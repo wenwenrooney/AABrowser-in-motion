@@ -11,7 +11,6 @@
 
     <application
         android:allowBackup="true"
-        android:appCategory="productivity"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:hardwareAccelerated="true"
@@ -22,22 +21,22 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.AABrowser">
+
         <meta-data
             android:name="distractionOptimized"
             android:value="true" />
+
         <meta-data
             android:name="android.max_aspect"
             android:value="4.0" />
+
         <meta-data
             android:name="androidx.car.app.minCarApiLevel"
             android:value="7" />
+
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
-
-        <uses-library
-            android:name="android.car"
-            android:required="false" />
 
         <activity
             android:name=".MainActivity"
@@ -47,7 +46,11 @@
             android:resizeableActivity="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.AABrowser">
-            <meta-data android:name="distractionOptimized" android:value="true" />
+
+            <meta-data
+                android:name="distractionOptimized"
+                android:value="true" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -56,6 +59,7 @@
                 <category android:name="androidx.car.app.category.NAVIGATION" />
                 <category android:name="android.intent.category.APP_MAPS" />
             </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -66,13 +70,18 @@
                 <data android:scheme="http" />
                 <data android:scheme="https" />
             </intent-filter>
+
             <layout
                 android:minWidth="1dp"
                 android:minHeight="1dp"
                 android:gravity="fill"
                 android:defaultWidth="800dp"
                 android:defaultHeight="480dp" />
-            <meta-data android:name="android.max_aspect" android:value="5.0" />
+
+            <meta-data
+                android:name="android.max_aspect"
+                android:value="5.0" />
+
         </activity>
 
         <activity
@@ -84,28 +93,40 @@
             android:launchMode="singleTop"
             android:noHistory="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <meta-data android:name="distractionOptimized" android:value="true" />
+
+            <meta-data
+                android:name="distractionOptimized"
+                android:value="true" />
+
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
-        </activity>
 
+        </activity>
 
         <activity
             android:name=".settings.SettingsActivity"
             android:exported="false"
             android:label="@string/settings_title"
             android:theme="@style/Theme.AABrowser">
-            <meta-data android:name="distractionOptimized" android:value="true" />
+
+            <meta-data
+                android:name="distractionOptimized"
+                android:value="true" />
+
         </activity>
 
         <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
             android:exported="false"
             android:theme="@style/Theme.AABrowser">
-            <meta-data android:name="distractionOptimized" android:value="true" />
+
+            <meta-data
+                android:name="distractionOptimized"
+                android:value="true" />
+
         </activity>
 
     </application>
