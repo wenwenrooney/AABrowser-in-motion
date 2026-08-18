@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Setup JDK 21
+      - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           distribution: zulu
@@ -23,17 +23,17 @@ jobs:
 
       - name: Accept Android SDK Licenses
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
+          yes | sdkmanager --licenses || true
 
-      - name: Install Android SDK 37
+      - name: Install Android SDK 36
         run: |
-          sdkmanager "platforms;android-37"
-          sdkmanager "build-tools;37.0.0"
+          sdkmanager "platforms;android-36"
+          sdkmanager "build-tools;36.0.0"
 
       - name: Make Gradle Executable
         run: chmod +x ./gradlew
 
-      - name: Clean
+      - name: Clean Project
         run: ./gradlew clean
 
       - name: Build Debug APK
@@ -45,4 +45,4 @@ jobs:
           name: AABrowser-In-Motion-Debug
           path: |
             app/build/outputs/apk/debug/*.apk
-            app/build/outputs/apk/debug/**/*.apk
+            app/build/outputs/renamedApks/debug/*.apk
