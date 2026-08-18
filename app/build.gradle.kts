@@ -33,7 +33,7 @@ android {
                 if (file.exists()) {
                     load(file.inputStream())
                 }
-            }
+    useLibrary("android.car")
 
             fun getProp(key: String): String? =
                 project.findProperty(key) as? String
