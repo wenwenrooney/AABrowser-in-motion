@@ -43,6 +43,7 @@
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
 
+        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|density|uiMode|layoutDirection|locale"
@@ -52,22 +53,24 @@
             android:label="@string/app_name"
             android:theme="@style/Theme.AABrowser">
 
+            <!-- Launcher Android biasa -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Android Auto -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.CAR_LAUNCHER" />
                 <category android:name="androidx.car.app.category.NAVIGATION" />
-                <category android:name="android.intent.category.APP_MAPS" />
             </intent-filter>
 
+            <!-- Buka URL HTTP/HTTPS -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.CAR_LAUNCHER" />
-                <category name="androidx.car.app.category.NAVIGATION" />
-                <category android:name="android.intent.category.APP_MAPS" />
 
                 <data android:scheme="http" />
                 <data android:scheme="https" />
@@ -90,6 +93,7 @@
 
         </activity>
 
+        <!-- Share Bookmark -->
         <activity
             android:name=".ShareBookmarkActivity"
             android:description="@string/share_bookmark_activity_description"
@@ -108,12 +112,14 @@
 
         </activity>
 
+        <!-- Settings -->
         <activity
             android:name=".settings.SettingsActivity"
             android:exported="false"
             android:label="@string/settings_title"
             android:theme="@style/Theme.AABrowser" />
 
+        <!-- Open Source Licenses -->
         <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
             android:exported="false"
