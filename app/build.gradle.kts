@@ -1,6 +1,8 @@
-import java.util.Properties
 import java.io.File
+import java.util.Properties
+
 import com.android.build.api.artifact.SingleArtifact
+
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
@@ -12,12 +14,13 @@ plugins {
 android {
     namespace = "com.kododake.aabrowser"
 
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.kododake.aabrowser"
+
         minSdk = 35
-        targetSdk = 37
+        targetSdk = 36
 
         versionCode = 6
         versionName = "1.6"
@@ -26,19 +29,24 @@ android {
             "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // WAJIB karena AABrowser-in-motion menggunakan android.car
+    useLibrary("android.car")
+
     signingConfigs {
         create("release") {
             val localProps = Properties().apply {
                 val file = rootProject.file("local.properties")
+
                 if (file.exists()) {
                     load(file.inputStream())
                 }
-    useLibrary("android.car")
+            }
 
-            fun getProp(key: String): String? =
-                project.findProperty(key) as? String
+            fun getProp(key: String): String? {
+                return project.findProperty(key) as? String
                     ?: localProps.getProperty(key)
                     ?: System.getenv(key)
+            }
 
             val storeFilePath =
                 getProp("RELEASE_STORE_FILE")
@@ -184,9 +192,7 @@ dependencies {
 abstract class RenameApkTask : DefaultTask() {
 
     @get:InputDirectory
-    @get:PathSensitive(
-        PathSensitivity.RELATIVE
-    )
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val inputDir: DirectoryProperty
 
     @get:OutputDirectory
@@ -203,7 +209,6 @@ abstract class RenameApkTask : DefaultTask() {
 
     @TaskAction
     fun run() {
-
         val inDir = inputDir.get().asFile
         val outDir = outputDir.get().asFile
 
@@ -216,22 +221,22 @@ abstract class RenameApkTask : DefaultTask() {
 
         inDir.listFiles()
             ?.filter { it.extension == "apk" }
-            ?.forEach { f ->
+            ?.forEach { file ->
 
                 val newName =
                     "${app}-${vName}${debugSuffix}.apk"
 
-                val dest =
+                val destination =
                     File(outDir, newName)
 
-                f.copyTo(
-                    dest,
+                file.copyTo(
+                    destination,
                     overwrite = true
                 )
 
                 println(
                     "APK Renamed and Copied to: " +
-                        dest.absolutePath
+                        destination.absolutePath
                 )
             }
     }
