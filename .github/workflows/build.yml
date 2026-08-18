@@ -1,0 +1,30 @@
+name: Build Android APK Online
+
+on:
+  workflow_dispatch: # Membuat tombol build manual di menu Actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build APK dengan Gradle
+        run: ./gradlew assembleDebug
+
+      - name: Upload File APK Jadi
+        uses: actions/upload-artifact@v4
+        with:
+          name: AABrowser-In-Motion-Debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+          
