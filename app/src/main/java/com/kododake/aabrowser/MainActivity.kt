@@ -161,12 +161,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleUxRestrictions(restrictions: CarUxRestrictions) {
-    if (isFinishing || isDestroyed) return
-
-    // Bypass motion/driving restriction
-    binding.addressEdit.isEnabled = true
-    binding.addressEdit.hint = getString(R.string.menu_address_label)
-}
+        if (isFinishing || isDestroyed) return
 
         val isRestricted = restrictions.activeRestrictions != 0
 
@@ -998,115 +993,83 @@ class MainActivity : AppCompatActivity() {
                 setIconTint(ColorStateList.valueOf(Color.WHITE))
                 iconPadding = 0
                 iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
-                setBackgroundColor(resolveThemeColor(android.R.attr.colorError))
                 setOnClickListener { removeBookmark(bookmark) }
             }
             row.addView(textContainer)
             row.addView(delBtn)
             itemCard.addView(row)
-            val params = LinearLayout.LayoutParams(-1, -2)
-            params.setMargins(0, (8 * density).toInt(), 0, 0)
-            container.addView(itemCard, params)
+            container.addView(itemCard, LinearLayout.LayoutParams(-1, -2).apply {
+                marginStart = (12 * density).toInt()
+                marginEnd = (12 * density).toInt()
+                bottomMargin = (8 * density).toInt()
+            })
         }
     }
 
+    private fun showQrCodeView() {
+        if (binding.qrCodeViewRoot.isVisible) return
+        binding.qrCodeViewRoot.visibility = View.VISIBLE
+        val bitmap = QRCodeWriter().encode(currentUrl, BarcodeFormat.QR_CODE, 512, 512)
+        val qrMatrix = BitMatrix.copy(bitmap)
+        binding.qrCodeImage.setImageBitmap(
+            android.graphics.Bitmap.createBitmap(
+                qrMatrix.width, qrMatrix.height,
+                android.graphics.Bitmap.Config.RGB_565
+            ).apply {
+                val pixels = IntArray(qrMatrix.width * qrMatrix.height)
+                for (y in 0 until qrMatrix.height) {
+                    for (x in 0 until qrMatrix.width) {
+                        pixels[y * qrMatrix.width + x] = if (qrMatrix[x, y]) Color.BLACK else Color.WHITE
+                    }
+                }
+                setPixels(pixels, 0, qrMatrix.width, 0, 0, qrMatrix.width, qrMatrix.height)
+            }
+        )
+    }
+
+    private fun hideQrCodeView() {
+        binding.qrCodeViewRoot.visibility = View.GONE
+    }
+
+    private fun showCheckLatestView() {
+        if (binding.checkLatestViewRoot.isVisible) return
+        binding.checkLatestViewRoot.visibility = View.VISIBLE
+        binding.checkLatestText.text = getString(R.string.check_latest_label)
+    }
+
+    private fun hideCheckLatestView() {
+        binding.checkLatestViewRoot.visibility = View.GONE
+    }
+
     private fun showBookmarkManager() {
-        binding.menuScroll.visibility = View.GONE
+        if (binding.bookmarkManagerRoot.isVisible) return
         binding.bookmarkManagerRoot.visibility = View.VISIBLE
         refreshBookmarks()
     }
 
     private fun hideBookmarkManager() {
         binding.bookmarkManagerRoot.visibility = View.GONE
-        binding.menuScroll.visibility = View.VISIBLE
-    }
-
-    private fun showQrCodeView() {
-        val url = currentUrl.trim()
-        if (url.isEmpty()) return
-        binding.menuScroll.visibility = View.GONE
-        binding.qrCodeViewRoot.visibility = View.VISIBLE
-        generateQrCode(url)?.let {
-            binding.qrCodeImage.setImageBitmap(it)
-            binding.qrCodeUrl.text = url
-        }
-    }
-
-    private fun hideQrCodeView() {
-        binding.qrCodeViewRoot.visibility = View.GONE
-        binding.menuScroll.visibility = View.VISIBLE
     }
 
     private fun showSettingsView() {
-        binding.menuScroll.visibility = View.GONE
+        if (binding.settingsViewRoot.isVisible) return
         binding.settingsViewRoot.visibility = View.VISIBLE
-        ensureSettingsContentPopulated()
-    }
-
-    private fun ensureSettingsContentPopulated() {
-        if (binding.settingsContentContainer.childCount > 0) return
-        try {
-            val contentView = SettingsViews.createSettingsContent(this, false) {
-                hideSettingsView()
-            }
-            binding.settingsContentContainer.addView(contentView)
-        } catch (_: Exception) {}
+        val settingsViews = SettingsViews(this, binding.settingsContainer)
+        settingsViews.setupSettings()
     }
 
     private fun hideSettingsView() {
         binding.settingsViewRoot.visibility = View.GONE
-        binding.menuScroll.visibility = View.VISIBLE
-    }
-
-    private fun showCheckLatestView() {
-        binding.menuScroll.visibility = View.GONE
-        binding.checkLatestViewRoot.visibility = View.VISIBLE
-        binding.checkLatestProgressIndicator.visibility = View.VISIBLE
-        try {
-            val pInfo = packageManager.getPackageInfo(packageName, 0)
-            binding.checkLatestInstalledVersion.text = getString(R.string.installed_version_label, "v${pInfo.versionName}")
-        } catch (_: Exception) {
-            binding.checkLatestInstalledVersion.text = "Installed: Unknown"
-        }
-        Thread {
-            try {
-                val conn = java.net.URL("https://api.github.com/repos/kododake/AABrowser/releases/latest").openConnection() as java.net.HttpURLConnection
-                conn.setRequestProperty("Accept", "application/vnd.github.v3+json")
-                if (conn.responseCode == 200) {
-                    val json = org.json.JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
-                    latestReleaseUrl = json.getString("html_url")
-                    val tag = json.getString("tag_name")
-                    runOnUiThread {
-                        binding.checkLatestProgressIndicator.visibility = View.GONE
-                        binding.checkLatestLatestVersion.text = getString(R.string.latest_version_label, tag)
-                    }
-                }
-            } catch (_: Exception) { runOnUiThread { binding.checkLatestProgressIndicator.visibility = View.GONE } }
-        }.start()
-    }
-
-    private fun hideCheckLatestView() {
-        binding.checkLatestViewRoot.visibility = View.GONE
-        binding.menuScroll.visibility = View.VISIBLE
-    }
-
-    private fun generateQrCode(content: String): Bitmap? {
-        return try {
-            val bitMatrix = QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, 512, 512)
-            val bitmap = Bitmap.createBitmap(512, 512, Bitmap.Config.ARGB_8888)
-            for (x in 0 until 512) for (y in 0 until 512) bitmap.setPixel(x, y, if (bitMatrix[x, y]) Color.BLACK else Color.WHITE)
-            bitmap
-        } catch (_: Exception) { null }
     }
 
     companion object {
         private const val MENU_BUTTON_AUTO_HIDE_DELAY_MS = 3000L
-        private const val MENU_BUTTON_SHOW_DELAY_MS = 500L
+        private const val MENU_BUTTON_SHOW_DELAY_MS = 1000L
+        private const val REQUEST_CODE_POST_NOTIFICATIONS = 100
+        private const val REQUEST_CODE_RECORD_AUDIO = 101
+        private const val FREE_DROID_WARN_VERSION_KEY = "free_droid_warn_version"
+        private const val KEEP_ANDROID_OPEN_URL = "https://github.com/kododake/AABrowser"
+        private const val FREE_DROID_WARN_SOLUTIONS_URL = "https://github.com/kododake/AABrowser"
         private const val GITHUB_REPO_URL = "https://github.com/kododake/AABrowser"
-        private const val KEEP_ANDROID_OPEN_URL = "https://keepandroidopen.org"
-        private const val FREE_DROID_WARN_SOLUTIONS_URL = "https://github.com/woheller69/FreeDroidWarn?tab=readme-ov-file#solutions"
-        private const val FREE_DROID_WARN_VERSION_KEY = "versionCodeWarn"
-        private const val REQUEST_CODE_POST_NOTIFICATIONS = 1101
-        private const val REQUEST_CODE_RECORD_AUDIO = 1102
     }
 }
