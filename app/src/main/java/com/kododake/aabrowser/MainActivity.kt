@@ -161,12 +161,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleUxRestrictions(restrictions: CarUxRestrictions) {
-        if (isFinishing || isDestroyed) return
-        if (BrowserPreferences.isBypassMotionRestrictionsEnabled(this)) {
-            binding.addressEdit.isEnabled = true
-            binding.addressEdit.hint = getString(R.string.menu_address_label)
-            return
-        }
+    if (isFinishing || isDestroyed) return
+
+    // Bypass motion/driving restriction
+    binding.addressEdit.isEnabled = true
+    binding.addressEdit.hint = getString(R.string.menu_address_label)
+}
 
         val isRestricted = restrictions.activeRestrictions != 0
 
